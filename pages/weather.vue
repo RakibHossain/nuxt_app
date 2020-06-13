@@ -34,11 +34,11 @@
             </div>
 
             <div>
-                <form @submit.prevent="getWeatherInfo">
+                <form @submit.prevent="getWeatherInfo()">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="city">Enter City Name:</label>
+                                <label for="city"><h4>Enter City Name:</h4></label>
                                 <input type="text" class="form-control" id="city" v-model="city">
                             </div>
                         </div>
@@ -81,21 +81,23 @@ export default {
         }
     },
     // it works before loading the component
-    asyncData({params, $axios}) {
-        return $axios
-            .$get(`https://api.openweathermap.org/data/2.5/weather?q=London&appid=${process.env.WEATHER_APP_ID}`)
-            .then(res => {
-                return {weather: res}
-            })
+    asyncData({params, $axios, store}) {
+        var url = `https://api.openweathermap.org/data/2.5/weather?q=London&appid=${process.env.WEATHER_APP_ID}`
+        return $axios.$get(url)
+                .then(res => {
+                    return { weather: res }
+                })
+                .catch((e) => {
+                    error({ statusCode: 404, message: 'Weather not found!' })
+                })
     },
     created() {
         this.getWeatherInfo()
     },
     methods: {
         getWeatherInfo() {
-            this.$axios
-            .$get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=${process.env.WEATHER_APP_ID}`)
-            .then(res => (this.weather = res))
+            var url = `https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=${process.env.WEATHER_APP_ID}`
+            this.$axios.$get(url).then(res => (this.weather = res))
         },
         getTemperature() {
             return Math.round(this.weather.main.temp - 273)
